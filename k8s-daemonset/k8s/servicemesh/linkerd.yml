@@ -50,52 +50,6 @@ data:
       ip: 0.0.0.0
       port: 9990
 
-    # Namers provide Linkerd with service discovery information.  To use a
-    # namer, you reference it in the dtab by its prefix.  We define 4 namers:
-    # * /io.l5d.k8s gets the address of the target app
-    # * /io.l5d.k8s.http gets the address of the http-incoming Linkerd router on the target app's node
-    # * /io.l5d.k8s.h2 gets the address of the h2-incoming Linkerd router on the target app's node
-    # * /io.l5d.k8s.grpc gets the address of the grpc-incoming Linkerd router on the target app's node
-    namers:
-    - kind: io.l5d.k8s
-    - kind: io.l5d.k8s
-      prefix: /io.l5d.k8s.http
-      transformers:
-        # The daemonset transformer replaces the address of the target app with
-        # the address of the http-incoming router of the Linkerd daemonset pod
-        # on the target app's node.
-      - kind: io.l5d.k8s.daemonset
-        namespace: linkerd
-        port: http-incoming
-        service: l5d
-        # hostNetwork: true # Uncomment if using host networking (eg for CNI)
-    - kind: io.l5d.k8s
-      prefix: /io.l5d.k8s.h2
-      transformers:
-        # The daemonset transformer replaces the address of the target app with
-        # the address of the h2-incoming router of the Linkerd daemonset pod
-        # on the target app's node.
-      - kind: io.l5d.k8s.daemonset
-        namespace: linkerd
-        port: h2-incoming
-        service: l5d
-        # hostNetwork: true # Uncomment if using host networking (eg for CNI)
-    - kind: io.l5d.k8s
-      prefix: /io.l5d.k8s.grpc
-      transformers:
-        # The daemonset transformer replaces the address of the target app with
-        # the address of the grpc-incoming router of the Linkerd daemonset pod
-        # on the target app's node.
-      - kind: io.l5d.k8s.daemonset
-        namespace: linkerd
-        port: grpc-incoming
-        service: l5d
-        # hostNetwork: true # Uncomment if using host networking (eg for CNI)
-    - kind: io.l5d.rewrite
-      prefix: /portNsSvcToK8s
-      pattern: "/{port}/{ns}/{svc}"
-      name: "/k8s/{ns}/{port}/{svc}"
-
     # Telemeters export metrics and tracing data about Linkerd, the services it
     # connects to, and the requests it processes.
     telemetry:
