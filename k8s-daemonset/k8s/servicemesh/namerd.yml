@@ -235,8 +235,11 @@ data:
       echo "grpc-incoming namespace already exists"
     else
       echo "
-      /srv => /#/io.l5d.k8s/default/grpc ;
-      /svc => /$/io.buoyant.http.domainToPathPfx/srv ;
+      /k8s       => /#/io.l5d.k8s ;
+      /portNsSvc => /#/portNsSvcToK8s ;
+      /srv       => /portNsSvc/grpc/default ;
+      /srv       => /portNsSvc/grpc ;
+      /svc       => /$/io.buoyant.http.domainToPathPfx/srv ;
       " | namerctl dtab create grpc-incoming -
     fi
 
