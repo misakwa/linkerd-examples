@@ -194,14 +194,13 @@ data:
       echo "h2-outgoing namespace already exists"
     else
       echo "
-      /ph  => /$/io.buoyant.rinet ;
-      /svc => /ph/80 ;
-      /svc => /$/io.buoyant.porthostPfx/ph ;
-      /k8s => /#/io.l5d.k8s.h2 ;
+      /ph        => /$/io.buoyant.rinet ;
+      /svc       => /$/io.buoyant.porthostPfx/ph ;
+      /k8s       => /#/io.l5d.k8s.h2 ;
       /portNsSvc => /#/portNsSvcToK8s ;
-      /host => /portNsSvc/h2/default ;
-      /host => /portNsSvc/h2 ;
-      /svc => /$/io.buoyant.http.domainToPathPfx/host ;
+      /host      => /portNsSvc/h2/default ;
+      /host      => /portNsSvc/h2 ;
+      /svc       => /$/io.buoyant.http.domainToPathPfx/host ;
       " | namerctl dtab create h2-outgoing -
     fi
 
