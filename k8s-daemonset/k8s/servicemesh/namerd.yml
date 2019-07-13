@@ -182,11 +182,11 @@ data:
       echo "http-incoming namespace already exists"
     else
       echo "
-      /k8s => /#/io.l5d.k8s ;
+      /k8s       => /#/io.l5d.k8s ;
       /portNsSvc => /#/portNsSvcToK8s ;
-      /host => /portNsSvc/http/default ;
-      /host => /portNsSvc/http ;
-      /svc => /$/io.buoyant.http.domainToPathPfx/host ;
+      /host      => /portNsSvc/http/default ;
+      /host      => /portNsSvc/http ;
+      /svc       => /$/io.buoyant.http.domainToPathPfx/host ;
       " | namerctl dtab create http-incoming -
     fi
 
