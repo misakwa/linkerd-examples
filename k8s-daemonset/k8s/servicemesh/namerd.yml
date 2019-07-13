@@ -208,11 +208,11 @@ data:
       echo "h2-incoming namespace already exists"
     else
       echo "
-      /k8s => /#/io.l5d.k8s ;
+      /k8s       => /#/io.l5d.k8s ;
       /portNsSvc => /#/portNsSvcToK8s ;
-      /host => /portNsSvc/h2/default ;
-      /host => /portNsSvc/h2 ;
-      /svc => /$/io.buoyant.http.domainToPathPfx/host ;
+      /host      => /portNsSvc/h2/default ;
+      /host      => /portNsSvc/h2 ;
+      /svc       => /$/io.buoyant.http.domainToPathPfx/host ;
       " | namerctl dtab create h2-incoming -
     fi
 
