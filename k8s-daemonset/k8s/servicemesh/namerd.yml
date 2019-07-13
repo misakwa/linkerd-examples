@@ -156,25 +156,103 @@ data:
 
     set -e
 
-    if namerctl dtab get external > /dev/null 2>&1; then
-      echo "external namespace already exists"
+    # This dtab looks up service names in k8s and falls back to DNS if they're
+    # not found (e.g. for external services). It accepts names of the form
+    # "service" and "service.namespace", defaulting the namespace to
+    # "default". For DNS lookups, it uses port 80 if unspecified. Note that
+    # dtab rules are read bottom to top. To see this in action, on the Linkerd
+    # administrative dashboard, click on the "dtab" tab, select "http-outgoing"
+    # from the dropdown, and enter a service name like "a.b". (Or click on the
+    # "requests" tab to see recent traffic through the system and how it was
+    # resolved.)
+    if namerctl dtab get http-outgoing > /dev/null 2>&1; then
+      echo "http-outgoing namespace already exists"
     else
       echo "
-      /host       => /#/io.l5d.k8s/default/http/hello;
-      /svc/*      => /host;
-      " | namerctl dtab create external -
+      /ph  => /$/io.buoyant.rinet ;
+      /svc => /ph/80 ;
+      /svc => /$/io.buoyant.porthostPfx/ph ;
+      /k8s => /#/io.l5d.k8s.http ;
+      /portNsSvc => /#/portNsSvcToK8s ;
+      /host => /portNsSvc/http/default ;
+      /host => /portNsSvc/http ;
+      /svc => /$/io.buoyant.http.domainToPathPfx/host ;
+      " | namerctl dtab create http-outgoing -
     fi
 
-    if namerctl dtab get internal > /dev/null 2>&1; then
-      echo "internal namespace already exists"
+    if namerctl dtab get http-incoming > /dev/null 2>&1; then
+      echo "http-incoming namespace already exists"
     else
       echo "
-      /srv        => /#/io.l5d.k8s/default/http;
-      /host       => /srv;
-      /tmp        => /srv;
-      /svc        => /host;
-      /host/world => /srv/world-v1;
-      " | namerctl dtab create internal -
+      /k8s => /#/io.l5d.k8s ;
+      /portNsSvc => /#/portNsSvcToK8s ;
+      /host => /portNsSvc/http/default ;
+      /host => /portNsSvc/http ;
+      /svc => /$/io.buoyant.http.domainToPathPfx/host ;
+      " | namerctl dtab create http-incoming -
+    fi
+
+    if namerctl dtab get h2-outgoing > /dev/null 2>&1; then
+      echo "h2-outgoing namespace already exists"
+    else
+      echo "
+      /ph  => /$/io.buoyant.rinet ;
+      /svc => /ph/80 ;
+      /svc => /$/io.buoyant.porthostPfx/ph ;
+      /k8s => /#/io.l5d.k8s.h2 ;
+      /portNsSvc => /#/portNsSvcToK8s ;
+      /host => /portNsSvc/h2/default ;
+      /host => /portNsSvc/h2 ;
+      /svc => /$/io.buoyant.http.domainToPathPfx/host ;
+      " | namerctl dtab create h2-outgoing -
+    fi
+
+    if namerctl dtab get h2-incoming > /dev/null 2>&1; then
+      echo "h2-incoming namespace already exists"
+    else
+      echo "
+      /k8s => /#/io.l5d.k8s ;
+      /portNsSvc => /#/portNsSvcToK8s ;
+      /host => /portNsSvc/h2/default ;
+      /host => /portNsSvc/h2 ;
+      /svc => /$/io.buoyant.http.domainToPathPfx/host ;
+      " | namerctl dtab create h2-incoming -
+    fi
+
+    if namerctl dtab get grpc-outgoing > /dev/null 2>&1; then
+      echo "grpc-outgoing namespace already exists"
+    else
+      echo "
+      /hp  => /$/inet ;
+      /svc => /$/io.buoyant.hostportPfx/hp ;
+      /srv => /#/io.l5d.k8s.grpc/default/grpc;
+      /svc => /$/io.buoyant.http.domainToPathPfx/srv ;
+      " | namerctl dtab create grpc-outgoing -
+    fi
+
+    if namerctl dtab get grpc-incoming > /dev/null 2>&1; then
+      echo "grpc-incoming namespace already exists"
+    else
+      echo "
+      /srv => /#/io.l5d.k8s/default/grpc ;
+      /svc => /$/io.buoyant.http.domainToPathPfx/srv ;
+      " | namerctl dtab create grpc-incoming -
+    fi
+
+    if namerctl dtab get http-ingress > /dev/null 2>&1; then
+      echo "http-ingress namespace already exists"
+    else
+      echo "
+      /svc => /#/io.l5d.k8s;
+      " | namerctl dtab create http-ingress -
+    fi
+
+    if namerctl dtab get h2-ingress > /dev/null 2>&1; then
+      echo "h2-ingress namespace already exists"
+    else
+      echo "
+      /svc => /#/io.l5d.k8s;
+      " | namerctl dtab create h2-ingress -
     fi
 ---
 kind: Job

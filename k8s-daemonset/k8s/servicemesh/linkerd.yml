@@ -79,27 +79,13 @@ data:
     routers:
     - label: http-outgoing
       protocol: http
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
+        namespace: http-outgoing
       servers:
       - port: 4140
         ip: 0.0.0.0
-      # This dtab looks up service names in k8s and falls back to DNS if they're
-      # not found (e.g. for external services). It accepts names of the form
-      # "service" and "service.namespace", defaulting the namespace to
-      # "default". For DNS lookups, it uses port 80 if unspecified. Note that
-      # dtab rules are read bottom to top. To see this in action, on the Linkerd
-      # administrative dashboard, click on the "dtab" tab, select "http-outgoing"
-      # from the dropdown, and enter a service name like "a.b". (Or click on the
-      # "requests" tab to see recent traffic through the system and how it was
-      # resolved.)
-      dtab: |
-        /ph  => /$/io.buoyant.rinet ;                     # /ph/80/google.com -> /$/io.buoyant.rinet/80/google.com
-        /svc => /ph/80 ;                                  # /svc/google.com -> /ph/80/google.com
-        /svc => /$/io.buoyant.porthostPfx/ph ;            # /svc/google.com:80 -> /ph/80/google.com
-        /k8s => /#/io.l5d.k8s.http ;                      # /k8s/default/http/foo -> /#/io.l5d.k8s.http/default/http/foo
-        /portNsSvc => /#/portNsSvcToK8s ;                 # /portNsSvc/http/default/foo -> /k8s/default/http/foo
-        /host => /portNsSvc/http/default ;                # /host/foo -> /portNsSvc/http/default/foo
-        /host => /portNsSvc/http ;                        # /host/default/foo -> /portNsSvc/http/default/foo
-        /svc => /$/io.buoyant.http.domainToPathPfx/host ; # /svc/foo.default -> /host/default/foo
       client:
         kind: io.l5d.static
         configs:
@@ -114,31 +100,22 @@ data:
       - port: 4141
         ip: 0.0.0.0
       interpreter:
-        kind: default
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
+        namespace: http-incoming
         transformers:
         - kind: io.l5d.k8s.localnode
           # hostNetwork: true # Uncomment if using host networking (eg for CNI)
-      dtab: |
-        /k8s => /#/io.l5d.k8s ;                           # /k8s/default/http/foo -> /#/io.l5d.k8s/default/http/foo
-        /portNsSvc => /#/portNsSvcToK8s ;                 # /portNsSvc/http/default/foo -> /k8s/default/http/foo
-        /host => /portNsSvc/http/default ;                # /host/foo -> /portNsSvc/http/default/foo
-        /host => /portNsSvc/http ;                        # /host/default/foo -> /portNsSvc/http/default/foo
-        /svc => /$/io.buoyant.http.domainToPathPfx/host ; # /svc/foo.default -> /host/default/foo
 
     - label: h2-outgoing
       protocol: h2
       servers:
       - port: 4240
         ip: 0.0.0.0
-      dtab: |
-        /ph  => /$/io.buoyant.rinet ;                       # /ph/80/google.com -> /$/io.buoyant.rinet/80/google.com
-        /svc => /ph/80 ;                                    # /svc/google.com -> /ph/80/google.com
-        /svc => /$/io.buoyant.porthostPfx/ph ;              # /svc/google.com:80 -> /ph/80/google.com
-        /k8s => /#/io.l5d.k8s.h2 ;                          # /k8s/default/h2/foo -> /#/io.l5d.k8s.h2/default/h2/foo
-        /portNsSvc => /#/portNsSvcToK8s ;                   # /portNsSvc/h2/default/foo -> /k8s/default/h2/foo
-        /host => /portNsSvc/h2/default ;                    # /host/foo -> /portNsSvc/h2/default/foo
-        /host => /portNsSvc/h2 ;                            # /host/default/foo -> /portNsSvc/h2/default/foo
-        /svc => /$/io.buoyant.http.domainToPathPfx/host ;   # /svc/foo.default -> /host/default/foo
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
+        namespace: h2-outgoing
       client:
         kind: io.l5d.static
         configs:
@@ -153,16 +130,12 @@ data:
       - port: 4241
         ip: 0.0.0.0
       interpreter:
-        kind: default
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
+        namespace: h2-incoming
         transformers:
         - kind: io.l5d.k8s.localnode
           # hostNetwork: true # Uncomment if using host networking (eg for CNI)
-      dtab: |
-        /k8s => /#/io.l5d.k8s ;                             # /k8s/default/h2/foo -> /#/io.l5d.k8s/default/h2/foo
-        /portNsSvc => /#/portNsSvcToK8s ;                   # /portNsSvc/h2/default/foo -> /k8s/default/h2/foo
-        /host => /portNsSvc/h2/default ;                    # /host/foo -> /portNsSvc/h2/default/foo
-        /host => /portNsSvc/h2 ;                            # /host/default/foo -> /portNsSvc/h2/default/foo
-        /svc => /$/io.buoyant.http.domainToPathPfx/host ;   # /svc/foo.default -> /host/default/foo
 
     - label: grpc-outgoing
       protocol: h2
@@ -172,11 +145,10 @@ data:
       identifier:
         kind: io.l5d.header.path
         segments: 1
-      dtab: |
-        /hp  => /$/inet ;                                # /hp/linkerd.io/8888 -> /$/inet/linkerd.io/8888
-        /svc => /$/io.buoyant.hostportPfx/hp ;           # /svc/linkerd.io:8888 -> /hp/linkerd.io/8888
-        /srv => /#/io.l5d.k8s.grpc/default/grpc;         # /srv/service/package -> /#/io.l5d.k8s.grpc/default/grpc/service/package
-        /svc => /$/io.buoyant.http.domainToPathPfx/srv ; # /svc/package.service -> /srv/service/package
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
+        namespace: grpc-outgoing
       client:
         kind: io.l5d.static
         configs:
@@ -194,13 +166,12 @@ data:
         kind: io.l5d.header.path
         segments: 1
       interpreter:
-        kind: default
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
+        namespace: grpc-incoming
         transformers:
         - kind: io.l5d.k8s.localnode
           # hostNetwork: true # Uncomment if using host networking (eg for CNI)
-      dtab: |
-        /srv => /#/io.l5d.k8s/default/grpc ;             # /srv/service/package -> /#/io.l5d.k8s/default/grpc/service/package
-        /svc => /$/io.buoyant.http.domainToPathPfx/srv ; # /svc/package.service -> /srv/service/package
 
     # HTTP Ingress Controller listening on port 80
     - protocol: http
@@ -209,9 +180,12 @@ data:
         - port: 80
           ip: 0.0.0.0
           clearContext: true
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
+        namespace: http-ingress
       identifier:
         kind: io.l5d.ingress
-      dtab: /svc => /#/io.l5d.k8s
 
     # HTTP/2 Ingress Controller listening on port 8080
     - protocol: h2
@@ -220,9 +194,12 @@ data:
         - port: 8080
           ip: 0.0.0.0
           clearContext: true
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
+        namespace: h2-ingress
       identifier:
         kind: io.l5d.ingress
-      dtab: /svc => /#/io.l5d.k8s
 
 ---
 apiVersion: extensions/v1beta1
