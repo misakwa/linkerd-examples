@@ -222,10 +222,13 @@ data:
       echo "grpc-outgoing namespace already exists"
     else
       echo "
-      /hp  => /$/inet ;
-      /svc => /$/io.buoyant.hostportPfx/hp ;
-      /srv => /#/io.l5d.k8s.grpc/default/grpc;
-      /svc => /$/io.buoyant.http.domainToPathPfx/srv ;
+      /hp        => /$/inet ;
+      /svc       => /$/io.buoyant.hostportPfx/hp ;
+      /k8s       => /#/io.l5d.k8s.grpc ;
+      /portNsSvc => /#/portNsSvcToK8s ;
+      /srv       => /portNsSvc/grpc/default ;
+      /srv       => /portNsSvc/grpc ;
+      /svc       => /$/io.buoyant.http.domainToPathPfx/srv ;
       " | namerctl dtab create grpc-outgoing -
     fi
 
