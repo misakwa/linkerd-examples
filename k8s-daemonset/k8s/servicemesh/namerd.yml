@@ -135,7 +135,6 @@ metadata:
 spec:
   selector:
     app: namerd
-  type: LoadBalancer
   ports:
   - name: thrift
     port: 4100
