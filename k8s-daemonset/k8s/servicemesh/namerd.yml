@@ -273,7 +273,7 @@ spec:
         image: linkerd/namerctl:0.8.6
         env:
         - name: NAMERCTL_BASE_URL
-          value: http://namerd.default.svc.cluster.local:4180
+          value: http://namerd.linkerd.svc.cluster.local:4180
         command:
         - "/namerctl/createNs.sh"
         volumeMounts:
