@@ -105,7 +105,7 @@ spec:
           name: namerd-config
       containers:
       - name: namerd
-        image: buoyantio/namerd:1.4.6
+        image: buoyantio/namerd:1.6.4
         args:
         - /io.buoyant/namerd/config/config.yml
         ports:

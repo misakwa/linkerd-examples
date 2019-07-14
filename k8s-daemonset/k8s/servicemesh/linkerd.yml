@@ -216,13 +216,15 @@ spec:
         app: l5d
     spec:
       # hostNetwork: true # Uncomment to use host networking (eg for CNI)
+      updateStrategy:
+        type: RollingUpdate
       volumes:
       - name: l5d-config
         configMap:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.4.6
+        image: buoyantio/linkerd:1.6.4
         env:
         - name: POD_IP
           valueFrom:
