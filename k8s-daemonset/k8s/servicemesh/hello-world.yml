@@ -30,7 +30,7 @@ spec:
         args:
         - "-addr=:7777"
         - "-text=Hello"
-        - "-target=world"
+        - "-target=world-v1"
         ports:
         - name: service
           containerPort: 7777
@@ -45,8 +45,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        - name: http_proxy
-          value: $(NODE_NAME):4140
         command:
         - "/bin/sh"
         - "-c"
