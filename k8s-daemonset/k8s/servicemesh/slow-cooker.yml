@@ -1,11 +1,11 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: slow-cooker1-deploy
+  name: slow-cooker1
 spec:
   template:
     metadata:
-      name: slow-cooker1-deploy
+      name: slow-cooker1
       labels:
         testrun: test1
     spec:
@@ -28,7 +28,7 @@ spec:
             -qps 10 \
             -concurrency 1 \
             -interval 30s \
-            http://hello.deploy
+            http://hello
         ports:
         - name: slow-cooker
           containerPort: 9991
