@@ -18,7 +18,7 @@ spec:
             fieldRef:
               fieldPath: status.hostIP
         - name: http_proxy
-          value: http://l5d.linkerd.svc.cluster.local:4140
+          value: $(NODE_NAME):4140
         command:
         - "/bin/sh"
         args:
