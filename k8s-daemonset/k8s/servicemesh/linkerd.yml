@@ -86,13 +86,6 @@ data:
       servers:
       - port: 4140
         ip: 0.0.0.0
-      client:
-        kind: io.l5d.static
-        configs:
-        # Use HTTPS if sending to port 443
-        - prefix: "/$/io.buoyant.rinet/443/{service}"
-          tls:
-            commonName: "{service}"
 
     - label: http-incoming
       protocol: http
@@ -116,13 +109,6 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: h2-outgoing
-      client:
-        kind: io.l5d.static
-        configs:
-        # Use HTTPS if sending to port 443
-        - prefix: "/$/io.buoyant.rinet/443/{service}"
-          tls:
-            commonName: "{service}"
 
     - label: h2-incoming
       protocol: h2
@@ -142,29 +128,16 @@ data:
       servers:
       - port: 4340
         ip: 0.0.0.0
-      identifier:
-        kind: io.l5d.header.path
-        segments: 1
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: grpc-outgoing
-      client:
-        kind: io.l5d.static
-        configs:
-        # Always use TLS when sending to external grpc servers
-        - prefix: "/$/inet/{service}"
-          tls:
-            commonName: "{service}"
 
     - label: grpc-incoming
       protocol: h2
       servers:
       - port: 4341
         ip: 0.0.0.0
-      identifier:
-        kind: io.l5d.header.path
-        segments: 1
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
@@ -216,8 +189,6 @@ spec:
         app: l5d
     spec:
       # hostNetwork: true # Uncomment to use host networking (eg for CNI)
-      updateStrategy:
-        type: RollingUpdate
       volumes:
       - name: l5d-config
         configMap:

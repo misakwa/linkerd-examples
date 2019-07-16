@@ -48,7 +48,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "helloworld -addr=:6777 -text=Hello -target=$NODE_NAME:4140 -protocol=grpc"
+        - "helloworld -addr=:6777 -text=Hello -target=dns://world-v1/$NODE_NAME:4340 -protocol=grpc"
         ports:
         - name: grpc-service
           containerPort: 6777
