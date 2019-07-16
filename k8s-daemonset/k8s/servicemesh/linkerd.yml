@@ -125,6 +125,9 @@ data:
 
     - label: grpc-outgoing
       protocol: h2
+      identifier:
+        kind: io.l5d.header.path
+        segments: 1
       servers:
       - port: 4340
         ip: 0.0.0.0
@@ -135,6 +138,9 @@ data:
 
     - label: grpc-incoming
       protocol: h2
+      identifier:
+        kind: io.l5d.header.path
+        segments: 1
       servers:
       - port: 4341
         ip: 0.0.0.0
