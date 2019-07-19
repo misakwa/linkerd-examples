@@ -64,6 +64,7 @@ data:
     # Usage is used for anonymized usage reporting.  You can set the orgId to
     # identify your organization or set `enabled: false` to disable entirely.
     usage:
+      enabled: false
       orgId: linkerd-examples-servicemesh
 
     # Routers define how Linkerd actually handles traffic.  Each router listens
@@ -79,10 +80,25 @@ data:
     routers:
     - label: http-outgoing
       protocol: http
+      originator: true
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: http-outgoing
+      service:
+        retries:
+          budget:
+            percentCanRetry: 0.3
+      #   responseClassifier:
+      #     kind: io.l5d.http.retryableIdempotent5XX
+      client:
+        failureAccrual:
+          kind: io.l5d.successRateWindowed
+          successRate: 0.9
+          window: 300
+        loadBalancer:
+          kind: ewma
+          enableProbation: true
       servers:
       - port: 4140
         ip: 0.0.0.0
@@ -98,10 +114,24 @@ data:
         namespace: http-incoming
         transformers:
         - kind: io.l5d.k8s.localnode
-          # hostNetwork: true # Uncomment if using host networking (eg for CNI)
+      service:
+        retries:
+          budget:
+            percentCanRetry: 0.3
+      #   responseClassifier:
+      #     kind: io.l5d.http.retryableIdempotent5XX
+      client:
+        failureAccrual:
+          kind: io.l5d.successRateWindowed
+          successRate: 0.9
+          window: 300
+        loadBalancer:
+          kind: ewma
+          enableProbation: true
 
     - label: h2-outgoing
       protocol: h2
+      originator: true
       servers:
       - port: 4240
         ip: 0.0.0.0
@@ -109,6 +139,20 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: h2-outgoing
+      service:
+        retries:
+          budget:
+            percentCanRetry: 0.3
+      #   responseClassifier:
+      #     kind: io.l5d.h2.retryableIdempotent5XX
+      client:
+        failureAccrual:
+          kind: io.l5d.successRateWindowed
+          successRate: 0.9
+          window: 300
+        loadBalancer:
+          kind: ewma
+          enableProbation: true
 
     - label: h2-incoming
       protocol: h2
@@ -121,13 +165,28 @@ data:
         namespace: h2-incoming
         transformers:
         - kind: io.l5d.k8s.localnode
-          # hostNetwork: true # Uncomment if using host networking (eg for CNI)
+      service:
+        retries:
+          budget:
+            percentCanRetry: 0.3
+      #   responseClassifier:
+      #     kind: io.l5d.h2.retryableIdempotent5XX
+      client:
+        failureAccrual:
+          kind: io.l5d.successRateWindowed
+          successRate: 0.9
+          window: 300
+        loadBalancer:
+          kind: ewma
+          enableProbation: true
 
     - label: grpc-outgoing
       protocol: h2
+      originator: true
       identifier:
-        kind: io.l5d.header.path
+      - kind: io.l5d.header.path
         segments: 1
+      - kind: io.l5d.header.token
       servers:
       - port: 4340
         ip: 0.0.0.0
@@ -135,12 +194,27 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: grpc-outgoing
+      service:
+        retries:
+          budget:
+            percentCanRetry: 0.3
+      #   responseClassifier:
+      #     kind: io.l5d.h2.grpc.compliant
+      client:
+        failureAccrual:
+          kind: io.l5d.successRateWindowed
+          successRate: 0.9
+          window: 300
+        loadBalancer:
+          kind: ewma
+          enableProbation: true
 
     - label: grpc-incoming
       protocol: h2
       identifier:
-        kind: io.l5d.header.path
+      - kind: io.l5d.header.path
         segments: 1
+      - kind: io.l5d.header.token
       servers:
       - port: 4341
         ip: 0.0.0.0
@@ -150,7 +224,20 @@ data:
         namespace: grpc-incoming
         transformers:
         - kind: io.l5d.k8s.localnode
-          # hostNetwork: true # Uncomment if using host networking (eg for CNI)
+      service:
+        retries:
+          budget:
+            percentCanRetry: 0.3
+      #   responseClassifier:
+      #     kind: io.l5d.h2.grpc.compliant
+      client:
+        failureAccrual:
+          kind: io.l5d.successRateWindowed
+          successRate: 0.9
+          window: 300
+        loadBalancer:
+          kind: ewma
+          enableProbation: true
 
     # HTTP Ingress Controller listening on port 80
     - protocol: http
@@ -165,6 +252,20 @@ data:
         namespace: http-ingress
       identifier:
         kind: io.l5d.ingress
+      service:
+        retries:
+          budget:
+            percentCanRetry: 0.3
+      #   responseClassifier:
+      #     kind: io.l5d.http.retryableIdempotent5XX
+      client:
+        failureAccrual:
+          kind: io.l5d.successRateWindowed
+          successRate: 0.9
+          window: 300
+        loadBalancer:
+          kind: ewma
+          enableProbation: true
 
     # HTTP/2 Ingress Controller listening on port 8080
     - protocol: h2
@@ -179,6 +280,20 @@ data:
         namespace: h2-ingress
       identifier:
         kind: io.l5d.ingress
+      service:
+        retries:
+          budget:
+            percentCanRetry: 0.3
+      #   responseClassifier:
+      #     kind: io.l5d.h2.retryableIdempotent5XX
+      client:
+        failureAccrual:
+          kind: io.l5d.successRateWindowed
+          successRate: 0.9
+          window: 300
+        loadBalancer:
+          kind: ewma
+          enableProbation: true
 
 ---
 apiVersion: extensions/v1beta1
@@ -233,6 +348,13 @@ spec:
           containerPort: 80
         - name: h2-ingress
           containerPort: 8080
+        - name: admin
+          containerPort: 9990
+        livenessProbe:
+          httpGet:
+            path: /admin/ping
+            port: 9990
+          initialDelaySeconds: 10
         volumeMounts:
         - name: "l5d-config"
           mountPath: "/io.buoyant/linkerd/config"
