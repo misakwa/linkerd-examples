@@ -9,10 +9,19 @@ spec:
       labels:
         testrun: test1
     spec:
+      restartPolicy: OnFailure
       containers:
       - name: slow-cooker
         image: buoyantio/slow_cooker:1.2.0
         env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         - name: NODE_NAME
           valueFrom:
             fieldRef:
@@ -25,11 +34,7 @@ spec:
         - "-c"
         - |
           slow_cooker \
-            -qps 10 \
+            -qps 10000 \
             -concurrency 1 \
-            -interval 30s \
-            http://hello
-        ports:
-        - name: slow-cooker
-          containerPort: 9991
-      restartPolicy: OnFailure
+            -interval 90s \
+            http://hello.$(POD_NAMESPACE)

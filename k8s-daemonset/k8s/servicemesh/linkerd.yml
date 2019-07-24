@@ -112,6 +112,7 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: http-incoming
+        # hostNetwork: true
         transformers:
         - kind: io.l5d.k8s.localnode
       service:
@@ -163,6 +164,7 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: h2-incoming
+        # hostNetwork: true
         transformers:
         - kind: io.l5d.k8s.localnode
       service:
@@ -184,9 +186,8 @@ data:
       protocol: h2
       originator: true
       identifier:
-      - kind: io.l5d.header.path
-        segments: 1
       - kind: io.l5d.header.token
+        header: x-l5d-svc
       servers:
       - port: 4340
         ip: 0.0.0.0
@@ -212,9 +213,8 @@ data:
     - label: grpc-incoming
       protocol: h2
       identifier:
-      - kind: io.l5d.header.path
-        segments: 1
       - kind: io.l5d.header.token
+        header: x-l5d-svc
       servers:
       - port: 4341
         ip: 0.0.0.0
@@ -222,6 +222,7 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: grpc-incoming
+        # hostNetwork: true
         transformers:
         - kind: io.l5d.k8s.localnode
       service:
@@ -250,6 +251,7 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: http-ingress
+        # hostNetwork: true
       identifier:
         kind: io.l5d.ingress
       service:
@@ -278,6 +280,7 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: h2-ingress
+        # hostNetwork: true
       identifier:
         kind: io.l5d.ingress
       service:
@@ -304,6 +307,11 @@ metadata:
   name: l5d
   namespace: linkerd
 spec:
+  minReadySeconds: 30
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   template:
     metadata:
       labels:
@@ -316,7 +324,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.6.4
+        image: buoyantio/linkerd:1.6.3
         env:
         - name: POD_IP
           valueFrom:
@@ -368,6 +376,7 @@ spec:
         - "proxy"
         - "-p"
         - "8001"
+
 ---
 apiVersion: v1
 kind: Service
@@ -375,6 +384,7 @@ metadata:
   name: l5d
   namespace: linkerd
 spec:
+  type: ClusterIP
   selector:
     app: l5d
   ports:
@@ -394,3 +404,5 @@ spec:
     port: 80
   - name: h2-ingress
     port: 8080
+  - name: admin
+    port: 9990

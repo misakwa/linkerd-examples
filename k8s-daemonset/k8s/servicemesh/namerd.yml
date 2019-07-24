@@ -11,6 +11,7 @@ spec:
     kind: DTab
     plural: dtabs
     singular: dtab
+
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -84,15 +85,25 @@ data:
     - kind: io.l5d.mesh
       ip: 0.0.0.0
       port: 4321
+
 ---
-kind: ReplicationController
-apiVersion: v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: namerd
+  labels:
+    app: namerd
 spec:
+  minReadySeconds: 30
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0
   replicas: 3
   selector:
-    app: namerd
+    matchLabels:
+      app: namerd
   template:
     metadata:
       labels:
@@ -105,7 +116,7 @@ spec:
           name: namerd-config
       containers:
       - name: namerd
-        image: buoyantio/namerd:1.6.4
+        image: buoyantio/namerd:1.6.3
         env:
         - name: POD_IP
           valueFrom:
@@ -141,12 +152,14 @@ spec:
         - "proxy"
         - "-p"
         - "8001"
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: namerd
 spec:
+  type: ClusterIP
   selector:
     app: namerd
   ports:
@@ -158,6 +171,7 @@ spec:
     port: 4321
   - name: admin
     port: 9991
+
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -182,13 +196,15 @@ data:
       echo "http-outgoing namespace already exists"
     else
       echo "
-      /ph        => /$/io.buoyant.rinet ;
-      /svc       => /$/io.buoyant.porthostPfx/ph ;
-      /k8s       => /#/io.l5d.k8s.http ;
-      /portNsSvc => /#/portNsSvcToK8s ;
-      /host      => /portNsSvc/http/default ;
-      /host      => /portNsSvc/http ;
-      /svc       => /$/io.buoyant.http.domainToPathPfx/host ;
+      /ph                      => /$/io.buoyant.rinet ;
+      /svc                     => /$/io.buoyant.porthostPfx/ph ;
+      /k8s                     => /#/io.l5d.k8s.http ;
+      /portNsSvc               => /#/portNsSvcToK8s ;
+      /host                    => /portNsSvc/http/default ;
+      /host                    => /portNsSvc/http ;
+      /svc                     => /$/io.buoyant.http.domainToPathPfx/host ;
+      /$/inet/*/4140           => !;
+      /$/io.buoyant.rinet/4141 => !;
       " | namerctl dtab create http-outgoing -
     fi
 
@@ -196,11 +212,13 @@ data:
       echo "http-incoming namespace already exists"
     else
       echo "
-      /k8s       => /#/io.l5d.k8s ;
-      /portNsSvc => /#/portNsSvcToK8s ;
-      /host      => /portNsSvc/http/default ;
-      /host      => /portNsSvc/http ;
-      /svc       => /$/io.buoyant.http.domainToPathPfx/host ;
+      /k8s                     => /#/io.l5d.k8s ;
+      /portNsSvc               => /#/portNsSvcToK8s ;
+      /host                    => /portNsSvc/http/default ;
+      /host                    => /portNsSvc/http ;
+      /svc                     => /$/io.buoyant.http.domainToPathPfx/host ;
+      /$/inet/*/4140           => !;
+      /$/io.buoyant.rinet/4141 => !;
       " | namerctl dtab create http-incoming -
     fi
 
@@ -208,13 +226,15 @@ data:
       echo "h2-outgoing namespace already exists"
     else
       echo "
-      /ph        => /$/io.buoyant.rinet ;
-      /svc       => /$/io.buoyant.porthostPfx/ph ;
-      /k8s       => /#/io.l5d.k8s.h2 ;
-      /portNsSvc => /#/portNsSvcToK8s ;
-      /host      => /portNsSvc/h2/default ;
-      /host      => /portNsSvc/h2 ;
-      /svc       => /$/io.buoyant.http.domainToPathPfx/host ;
+      /ph                      => /$/io.buoyant.rinet ;
+      /svc                     => /$/io.buoyant.porthostPfx/ph ;
+      /k8s                     => /#/io.l5d.k8s.h2 ;
+      /portNsSvc               => /#/portNsSvcToK8s ;
+      /host                    => /portNsSvc/h2/default ;
+      /host                    => /portNsSvc/h2 ;
+      /svc                     => /$/io.buoyant.http.domainToPathPfx/host ;
+      /$/inet/*/4240           => !;
+      /$/io.buoyant.rinet/4241 => !;
       " | namerctl dtab create h2-outgoing -
     fi
 
@@ -222,11 +242,13 @@ data:
       echo "h2-incoming namespace already exists"
     else
       echo "
-      /k8s       => /#/io.l5d.k8s ;
-      /portNsSvc => /#/portNsSvcToK8s ;
-      /host      => /portNsSvc/h2/default ;
-      /host      => /portNsSvc/h2 ;
-      /svc       => /$/io.buoyant.http.domainToPathPfx/host ;
+      /k8s                     => /#/io.l5d.k8s ;
+      /portNsSvc               => /#/portNsSvcToK8s ;
+      /host                    => /portNsSvc/h2/default ;
+      /host                    => /portNsSvc/h2 ;
+      /svc                     => /$/io.buoyant.http.domainToPathPfx/host ;
+      /$/inet/*/4240           => !;
+      /$/io.buoyant.rinet/4241 => !;
       " | namerctl dtab create h2-incoming -
     fi
 
@@ -234,13 +256,15 @@ data:
       echo "grpc-outgoing namespace already exists"
     else
       echo "
-      /hp        => /$/inet ;
-      /svc       => /$/io.buoyant.hostportPfx/hp ;
-      /k8s       => /#/io.l5d.k8s.grpc ;
-      /portNsSvc => /#/portNsSvcToK8s ;
-      /srv       => /portNsSvc/grpc/default ;
-      /srv       => /portNsSvc/grpc ;
-      /svc       => /$/io.buoyant.http.domainToPathPfx/srv ;
+      /hp                      => /$/inet ;
+      /svc                     => /$/io.buoyant.hostportPfx/hp ;
+      /k8s                     => /#/io.l5d.k8s.grpc ;
+      /portNsSvc               => /#/portNsSvcToK8s ;
+      /srv                     => /portNsSvc/grpc/default ;
+      /srv                     => /portNsSvc/grpc ;
+      /svc                     => /$/io.buoyant.http.domainToPathPfx/srv ;
+      /$/inet/*/4340           => !;
+      /$/io.buoyant.rinet/4341 => !;
       " | namerctl dtab create grpc-outgoing -
     fi
 
@@ -248,11 +272,13 @@ data:
       echo "grpc-incoming namespace already exists"
     else
       echo "
-      /k8s       => /#/io.l5d.k8s ;
-      /portNsSvc => /#/portNsSvcToK8s ;
-      /srv       => /portNsSvc/grpc/default ;
-      /srv       => /portNsSvc/grpc ;
-      /svc       => /$/io.buoyant.http.domainToPathPfx/srv ;
+      /k8s                     => /#/io.l5d.k8s ;
+      /portNsSvc               => /#/portNsSvcToK8s ;
+      /srv                     => /portNsSvc/grpc/default ;
+      /srv                     => /portNsSvc/grpc ;
+      /svc                     => /$/io.buoyant.http.domainToPathPfx/srv ;
+      /$/inet/*/4340           => !;
+      /$/io.buoyant.rinet/4341 => !;
       " | namerctl dtab create grpc-incoming -
     fi
 
@@ -271,6 +297,7 @@ data:
       /svc => /#/io.l5d.k8s;
       " | namerctl dtab create h2-ingress -
     fi
+
 ---
 kind: Job
 apiVersion: batch/v1
