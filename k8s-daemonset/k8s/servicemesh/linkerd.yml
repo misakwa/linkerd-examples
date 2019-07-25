@@ -213,7 +213,6 @@ data:
     - label: grpc-outgoing
       protocol: h2
       originator: true
-      experimental: true
       identifier:
       - kind: io.l5d.header.token
       - kind: io.l5d.header.token
@@ -249,7 +248,6 @@ data:
 
     - label: grpc-incoming
       protocol: h2
-      experimental: true
       identifier:
       - kind: io.l5d.header.token
       - kind: io.l5d.header.token
@@ -325,7 +323,6 @@ data:
     # HTTP/2 Ingress Controller listening on port 8080
     - protocol: h2
       label: h2-ingress
-      experimental: true
       servers:
         - port: 8080
           ip: 0.0.0.0
@@ -342,8 +339,8 @@ data:
         configs:
         - prefix: /svc
           totalTimeoutMs: 500
-          # responseClassifier:
-          #   kind: io.l5d.h2.retryableIdempotent5XX
+          responseClassifier:
+            kind: io.l5d.h2.retryableIdempotent5XX
           retries:
             budget:
               percentCanRetry: 0.3
@@ -423,7 +420,7 @@ spec:
           httpGet:
             path: /admin/ping
             port: 9990
-          initialDelaySeconds: 10
+          initialDelaySeconds: 5
         volumeMounts:
         - name: "l5d-config"
           mountPath: "/io.buoyant/linkerd/config"
