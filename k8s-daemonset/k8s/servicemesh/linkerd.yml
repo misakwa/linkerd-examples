@@ -86,19 +86,26 @@ data:
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: http-outgoing
       service:
-        retries:
-          budget:
-            percentCanRetry: 0.3
-      #   responseClassifier:
-      #     kind: io.l5d.http.retryableIdempotent5XX
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          totalTimeoutMs: 500
+          # responseClassifier:
+          #   kind: io.l5d.http.retryableIdempotent5XX
+          retries:
+            budget:
+              percentCanRetry: 0.3
       client:
-        failureAccrual:
-          kind: io.l5d.successRateWindowed
-          successRate: 0.9
-          window: 300
-        loadBalancer:
-          kind: ewma
-          enableProbation: true
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          failureAccrual:
+            kind: io.l5d.successRateWindowed
+            successRate: 0.9
+            window: 300
+          loadBalancer:
+            kind: ewma
+            enableProbation: true
       servers:
       - port: 4140
         ip: 0.0.0.0
@@ -116,19 +123,26 @@ data:
         transformers:
         - kind: io.l5d.k8s.localnode
       service:
-        retries:
-          budget:
-            percentCanRetry: 0.3
-      #   responseClassifier:
-      #     kind: io.l5d.http.retryableIdempotent5XX
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          totalTimeoutMs: 500
+          # responseClassifier:
+          #   kind: io.l5d.http.retryableIdempotent5XX
+          retries:
+            budget:
+              percentCanRetry: 0.3
       client:
-        failureAccrual:
-          kind: io.l5d.successRateWindowed
-          successRate: 0.9
-          window: 300
-        loadBalancer:
-          kind: ewma
-          enableProbation: true
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          failureAccrual:
+            kind: io.l5d.successRateWindowed
+            successRate: 0.9
+            window: 300
+          loadBalancer:
+            kind: ewma
+            enableProbation: true
 
     - label: h2-outgoing
       protocol: h2
@@ -141,19 +155,26 @@ data:
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: h2-outgoing
       service:
-        retries:
-          budget:
-            percentCanRetry: 0.3
-      #   responseClassifier:
-      #     kind: io.l5d.h2.retryableIdempotent5XX
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          totalTimeoutMs: 500
+          # responseClassifier:
+          #   kind: io.l5d.h2.retryableIdempotent5XX
+          retries:
+            budget:
+              percentCanRetry: 0.3
       client:
-        failureAccrual:
-          kind: io.l5d.successRateWindowed
-          successRate: 0.9
-          window: 300
-        loadBalancer:
-          kind: ewma
-          enableProbation: true
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          failureAccrual:
+            kind: io.l5d.successRateWindowed
+            successRate: 0.9
+            window: 300
+          loadBalancer:
+            kind: ewma
+            enableProbation: true
 
     - label: h2-incoming
       protocol: h2
@@ -168,19 +189,26 @@ data:
         transformers:
         - kind: io.l5d.k8s.localnode
       service:
-        retries:
-          budget:
-            percentCanRetry: 0.3
-      #   responseClassifier:
-      #     kind: io.l5d.h2.retryableIdempotent5XX
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          totalTimeoutMs: 500
+          # responseClassifier:
+          #   kind: io.l5d.h2.retryableIdempotent5XX
+          retries:
+            budget:
+              percentCanRetry: 0.3
       client:
-        failureAccrual:
-          kind: io.l5d.successRateWindowed
-          successRate: 0.9
-          window: 300
-        loadBalancer:
-          kind: ewma
-          enableProbation: true
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          failureAccrual:
+            kind: io.l5d.successRateWindowed
+            successRate: 0.9
+            window: 300
+          loadBalancer:
+            kind: ewma
+            enableProbation: true
 
     - label: grpc-outgoing
       protocol: h2
@@ -196,19 +224,26 @@ data:
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
         namespace: grpc-outgoing
       service:
-        retries:
-          budget:
-            percentCanRetry: 0.3
-      #   responseClassifier:
-      #     kind: io.l5d.h2.grpc.compliant
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          totalTimeoutMs: 500
+          # responseClassifier:
+          #   kind: io.l5d.h2.grpc.compliant
+          retries:
+            budget:
+              percentCanRetry: 0.3
       client:
-        failureAccrual:
-          kind: io.l5d.successRateWindowed
-          successRate: 0.9
-          window: 300
-        loadBalancer:
-          kind: ewma
-          enableProbation: true
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          failureAccrual:
+            kind: io.l5d.successRateWindowed
+            successRate: 0.9
+            window: 300
+          loadBalancer:
+            kind: ewma
+            enableProbation: true
 
     - label: grpc-incoming
       protocol: h2
@@ -226,19 +261,26 @@ data:
         transformers:
         - kind: io.l5d.k8s.localnode
       service:
-        retries:
-          budget:
-            percentCanRetry: 0.3
-      #   responseClassifier:
-      #     kind: io.l5d.h2.grpc.compliant
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          totalTimeoutMs: 500
+          # responseClassifier:
+          #   kind: io.l5d.h2.grpc.compliant
+          retries:
+            budget:
+              percentCanRetry: 0.3
       client:
-        failureAccrual:
-          kind: io.l5d.successRateWindowed
-          successRate: 0.9
-          window: 300
-        loadBalancer:
-          kind: ewma
-          enableProbation: true
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          failureAccrual:
+            kind: io.l5d.successRateWindowed
+            successRate: 0.9
+            window: 300
+          loadBalancer:
+            kind: ewma
+            enableProbation: true
 
     # HTTP Ingress Controller listening on port 80
     - protocol: http
@@ -255,19 +297,26 @@ data:
       identifier:
         kind: io.l5d.ingress
       service:
-        retries:
-          budget:
-            percentCanRetry: 0.3
-      #   responseClassifier:
-      #     kind: io.l5d.http.retryableIdempotent5XX
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          totalTimeoutMs: 500
+          # responseClassifier:
+          #   kind: io.l5d.http.retryableIdempotent5XX
+          retries:
+            budget:
+              percentCanRetry: 0.3
       client:
-        failureAccrual:
-          kind: io.l5d.successRateWindowed
-          successRate: 0.9
-          window: 300
-        loadBalancer:
-          kind: ewma
-          enableProbation: true
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          failureAccrual:
+            kind: io.l5d.successRateWindowed
+            successRate: 0.9
+            window: 300
+          loadBalancer:
+            kind: ewma
+            enableProbation: true
 
     # HTTP/2 Ingress Controller listening on port 8080
     - protocol: h2
@@ -284,19 +333,26 @@ data:
       identifier:
         kind: io.l5d.ingress
       service:
-        retries:
-          budget:
-            percentCanRetry: 0.3
-      #   responseClassifier:
-      #     kind: io.l5d.h2.retryableIdempotent5XX
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          totalTimeoutMs: 500
+          # responseClassifier:
+          #   kind: io.l5d.h2.retryableIdempotent5XX
+          retries:
+            budget:
+              percentCanRetry: 0.3
       client:
-        failureAccrual:
-          kind: io.l5d.successRateWindowed
-          successRate: 0.9
-          window: 300
-        loadBalancer:
-          kind: ewma
-          enableProbation: true
+        kind: io.l5d.static
+        configs:
+        - prefix: /svc
+          failureAccrual:
+            kind: io.l5d.successRateWindowed
+            successRate: 0.9
+            window: 300
+          loadBalancer:
+            kind: ewma
+            enableProbation: true
 
 ---
 apiVersion: extensions/v1beta1
