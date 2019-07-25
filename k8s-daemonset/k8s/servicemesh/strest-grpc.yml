@@ -31,7 +31,6 @@ spec:
           value: "info"
         args:
         - "server"
-        - "--logLevel=debug"
         - "--address=:11111"
         ports:
         - name: grpc
@@ -80,10 +79,13 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        - name: GRPC_GO_LOG_VERBOSITY_LEVEL
+          value: "99"
+        - name: GRPC_GO_LOG_SEVERITY_LEVEL
+          value: "info"
         args:
         - "client"
-        - "--logLevel=debug"
-        - "--address=strest-server.$(POD_NAMESPACE)"
+        - "--address=$(NODE_NAME):4340/strest-server.$(POD_NAMESPACE)"
         - "--connections=5"
         - "--totalTargetRps=100"
         - "--streams=5"
