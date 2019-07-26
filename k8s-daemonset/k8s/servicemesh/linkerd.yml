@@ -81,6 +81,8 @@ data:
     - label: http-outgoing
       protocol: http
       originator: true
+      tracePropagator:
+        kind: io.l5d.zipkin
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
@@ -115,6 +117,8 @@ data:
       servers:
       - port: 4141
         ip: 0.0.0.0
+      tracePropagator:
+        kind: io.l5d.zipkin
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.linkerd.svc.cluster.local/4100
@@ -147,6 +151,8 @@ data:
     - label: h2-outgoing
       protocol: h2
       originator: true
+      tracePropagator:
+        kind: io.l5d.zipkin
       servers:
       - port: 4240
         ip: 0.0.0.0
@@ -178,6 +184,8 @@ data:
 
     - label: h2-incoming
       protocol: h2
+      tracePropagator:
+        kind: io.l5d.zipkin
       servers:
       - port: 4241
         ip: 0.0.0.0
@@ -213,6 +221,8 @@ data:
     - label: grpc-outgoing
       protocol: h2
       originator: true
+      tracePropagator:
+        kind: io.l5d.zipkin
       identifier:
       - kind: io.l5d.header.token
       - kind: io.l5d.header.token
@@ -248,6 +258,8 @@ data:
 
     - label: grpc-incoming
       protocol: h2
+      tracePropagator:
+        kind: io.l5d.zipkin
       identifier:
       - kind: io.l5d.header.token
       - kind: io.l5d.header.token
@@ -287,6 +299,8 @@ data:
     # HTTP Ingress Controller listening on port 80
     - protocol: http
       label: http-ingress
+      tracePropagator:
+        kind: io.l5d.zipkin
       servers:
         - port: 80
           ip: 0.0.0.0
@@ -323,6 +337,8 @@ data:
     # HTTP/2 Ingress Controller listening on port 8080
     - protocol: h2
       label: h2-ingress
+      tracePropagator:
+        kind: io.l5d.zipkin
       servers:
         - port: 8080
           ip: 0.0.0.0
