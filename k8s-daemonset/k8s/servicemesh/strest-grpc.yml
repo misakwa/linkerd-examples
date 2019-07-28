@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: strest-server
-        image: buoyantio/strest-grpc:0.0.7
+        image: quay.io/misakwa/strest-grpc:misakwa_more-client-flags
         env:
         - name: POD_IP
           valueFrom:
@@ -47,7 +47,6 @@ spec:
   ports:
   - name: grpc
     port: 11111
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -65,7 +64,7 @@ spec:
     spec:
       containers:
       - name: strest-client
-        image: buoyantio/strest-grpc:0.0.7
+        image: quay.io/misakwa/strest-grpc:misakwa_more-client-flags
         env:
         - name: NODE_NAME
           valueFrom:
@@ -85,7 +84,9 @@ spec:
           value: "info"
         args:
         - "client"
-        - "--address=$(NODE_NAME):4340/strest-server.$(POD_NAMESPACE)"
+        - "--address=$(NODE_NAME):4340"
+        - "--authority=strest-server.$(POD_NAMESPACE)"
         - "--connections=5"
-        - "--totalTargetRps=100"
+        - "--totalTargetRps=500"
+        - "--errorRate=0.005"
         - "--streams=5"
